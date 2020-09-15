@@ -1,10 +1,7 @@
 package com.thoughtworks.rslist.api;
 
 import domain.RsEvent;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,9 +13,9 @@ public class RsController {
 
   private List<RsEvent> initRsEvent() {
     List<RsEvent> rsEventList = new ArrayList<>();
-    rsEventList.add(new RsEvent("第一条事件", "无标签"));
-    rsEventList.add(new RsEvent("第二条事件", "无标签"));
-    rsEventList.add(new RsEvent("第三条事件", "无标签"));
+    rsEventList.add(new RsEvent("第一条事件", "经济"));
+    rsEventList.add(new RsEvent("第二条事件", "社会时事"));
+    rsEventList.add(new RsEvent("第三条事件", "政治"));
     return rsEventList;
   }
 
@@ -33,6 +30,11 @@ public class RsController {
       return rsList;
     }
     return rsList.subList(start - 1, end);
+  }
+
+  @PostMapping("/rs/event")
+  public void addRsEvent(@RequestBody RsEvent rsEvent){
+    rsList.add(rsEvent);
   }
 
 }
