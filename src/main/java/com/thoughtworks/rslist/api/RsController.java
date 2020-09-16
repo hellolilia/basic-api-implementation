@@ -16,9 +16,9 @@ public class RsController {
 
   private List<RsEvent> initRsEvent() {
     List<RsEvent> rsEventList = new ArrayList<>();
-    rsEventList.add(new RsEvent("第一条事件", "经济"));
-    rsEventList.add(new RsEvent("第二条事件", "社会时事"));
-    rsEventList.add(new RsEvent("第三条事件", "政治"));
+    rsEventList.add(new RsEvent("鸡肉降价了", "经济"));
+    rsEventList.add(new RsEvent("中国女排八连胜", "体育"));
+    rsEventList.add(new RsEvent("湖北复航国际客运航线", "社会时事"));
     return rsEventList;
   }
 
@@ -46,4 +46,17 @@ public class RsController {
     return rsList;
   }
 
+  @PatchMapping("/rs/{index}")
+  public  void modifyOneRsEvent(@PathVariable int index, @RequestBody RsEvent modifyEvent){
+    if(modifyEvent.getEventName() != null && modifyEvent.getKeyWord() != null){
+      rsList.get(index - 1).setKeyWord(modifyEvent.getKeyWord());
+      rsList.get(index - 1).setEventName(modifyEvent.getEventName());
+    } else if(modifyEvent.getEventName() == null && modifyEvent.getKeyWord() != null){
+      rsList.get(index - 1).setKeyWord(modifyEvent.getKeyWord());
+    } else {
+      rsList.get(index - 1).setEventName(modifyEvent.getEventName());
+    }
+  }
+
 }
+
