@@ -84,24 +84,31 @@ class RsControllerTest {
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].eventName", is("鸡肉降价了")))
                 .andExpect(jsonPath("$[0].keyWord", is("经济")))
+                .andExpect(jsonPath("$[0]", not(hasKey("user"))))
                 .andExpect(jsonPath("$[1].eventName", is("中国女排八连胜")))
                 .andExpect(jsonPath("$[1].keyWord", is("体育")))
+                .andExpect(jsonPath("$[1]", not(hasKey("user"))))
                 .andExpect(status().isOk());
         mockMvc.perform(get("/rs/list?start=2&end=3"))
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].eventName", is("中国女排八连胜")))
                 .andExpect(jsonPath("$[0].keyWord", is("体育")))
+                .andExpect(jsonPath("$[0]", not(hasKey("user"))))
                 .andExpect(jsonPath("$[1].eventName", is("湖北复航国际客运航线")))
                 .andExpect(jsonPath("$[1].keyWord", is("社会时事")))
+                .andExpect(jsonPath("$[1]", not(hasKey("user"))))
                 .andExpect(status().isOk());
         mockMvc.perform(get("/rs/list?start=1&end=3"))
                 .andExpect(jsonPath("$", hasSize(3)))
                 .andExpect(jsonPath("$[0].eventName", is("鸡肉降价了")))
                 .andExpect(jsonPath("$[0].keyWord", is("经济")))
+                .andExpect(jsonPath("$[0]", not(hasKey("user"))))
                 .andExpect(jsonPath("$[1].eventName", is("中国女排八连胜")))
                 .andExpect(jsonPath("$[1].keyWord", is("体育")))
+                .andExpect(jsonPath("$[1]", not(hasKey("user"))))
                 .andExpect(jsonPath("$[2].eventName", is("湖北复航国际客运航线")))
                 .andExpect(jsonPath("$[2].keyWord", is("社会时事")))
+                .andExpect(jsonPath("$[2]", not(hasKey("user"))))
                 .andExpect(status().isOk());
     }
 
@@ -121,12 +128,16 @@ class RsControllerTest {
                 .andExpect(jsonPath("$", hasSize(4)))
                 .andExpect(jsonPath("$[0].eventName", is("鸡肉降价了")))
                 .andExpect(jsonPath("$[0].keyWord", is("经济")))
+                .andExpect(jsonPath("$[0]", not(hasKey("user"))))
                 .andExpect(jsonPath("$[1].eventName", is("中国女排八连胜")))
                 .andExpect(jsonPath("$[1].keyWord", is("体育")))
+                .andExpect(jsonPath("$[1]", not(hasKey("user"))))
                 .andExpect(jsonPath("$[2].eventName", is("湖北复航国际客运航线")))
                 .andExpect(jsonPath("$[2].keyWord", is("社会时事")))
+                .andExpect(jsonPath("$[2]", not(hasKey("user"))))
                 .andExpect(jsonPath("$[3].eventName", is("信条上映")))
                 .andExpect(jsonPath("$[3].keyWord", is("文化")))
+                .andExpect(jsonPath("$[3]", not(hasKey("user"))))
                 .andExpect(status().isOk());
     }
 
@@ -138,10 +149,13 @@ class RsControllerTest {
                 .andExpect(jsonPath("$", hasSize(3)))
                 .andExpect(jsonPath("$[0].eventName", is("鸡肉降价了")))
                 .andExpect(jsonPath("$[0].keyWord", is("经济")))
+                .andExpect(jsonPath("$[0]", not(hasKey("user"))))
                 .andExpect(jsonPath("$[1].eventName", is("湖北复航国际客运航线")))
                 .andExpect(jsonPath("$[1].keyWord", is("社会时事")))
+                .andExpect(jsonPath("$[1]", not(hasKey("user"))))
                 .andExpect(jsonPath("$[2].eventName", is("信条上映")))
                 .andExpect(jsonPath("$[2].keyWord", is("文化")))
+                .andExpect(jsonPath("$[2]", not(hasKey("user"))))
                 .andExpect(status().isOk());
     }
 
@@ -158,10 +172,13 @@ class RsControllerTest {
                 .andExpect(jsonPath("$", hasSize(3)))
                 .andExpect(jsonPath("$[0].eventName", is("张纪中结婚")))
                 .andExpect(jsonPath("$[0].keyWord", is("娱乐")))
+                .andExpect(jsonPath("$[0]", not(hasKey("user"))))
                 .andExpect(jsonPath("$[1].eventName", is("湖北复航国际客运航线")))
                 .andExpect(jsonPath("$[1].keyWord", is("社会时事")))
+                .andExpect(jsonPath("$[1]", not(hasKey("user"))))
                 .andExpect(jsonPath("$[2].eventName", is("信条上映")))
                 .andExpect(jsonPath("$[2].keyWord", is("文化")))
+                .andExpect(jsonPath("$[2]", not(hasKey("user"))))
                 .andExpect(status().isOk());
     }
 
