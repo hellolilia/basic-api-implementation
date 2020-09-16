@@ -1,18 +1,23 @@
 package com.thoughtworks.rslist.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import domain.RsEvent;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MockMvcBuilder;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+
+import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -22,6 +27,11 @@ class RsControllerTest {
 
     @Autowired
     MockMvc mockMvc;
+
+    @BeforeEach
+    public void init(){
+        mockMvc = MockMvcBuilders.standaloneSetup(new RsController()).build();
+    }
 
     @Test
     public void should_get_one_rs_event() throws Exception {
@@ -88,5 +98,19 @@ class RsControllerTest {
                 .andExpect(jsonPath("$[3].keyWord", is("经济")))
                 .andExpect(status().isOk());
     }
+
+    @Test
+    public void should_delete_rs_event() throws Exception {
+
+        mockMvc.perform(delete("/rs/2"))
+                .andExpect(jsonPath("$",hasSize(2)))
+                .andExpect(jsonPath("$[0].eventName", is("第一条事件")))
+                .andExpect(jsonPath("$[0].keyWord", is("经济")))
+                .andExpect(jsonPath("$[1].eventName", is("第三条事件")))
+                .andExpect(jsonPath("$[1].keyWord", is("政治")))
+                .andExpect(status().isOk());
+    }
+
+    
 
 }
