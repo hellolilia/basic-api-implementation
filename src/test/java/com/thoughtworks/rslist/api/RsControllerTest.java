@@ -41,19 +41,15 @@ class RsControllerTest {
     @Test
     @Order(1)
     public void should_get_event_list() throws Exception {
-        User user = new User("wang", "female", 18, "c@thoughtworks.com", "12222222222");
 
         mockMvc.perform(get("/rs/list"))
                 .andExpect(jsonPath("$", hasSize(3)))
                 .andExpect(jsonPath("$[0].eventName", is("鸡肉降价了")))
                 .andExpect(jsonPath("$[0].keyWord", is("经济")))
-                .andExpect(jsonPath("$[0].user", is(user)))
                 .andExpect(jsonPath("$[1].eventName", is("中国女排八连胜")))
                 .andExpect(jsonPath("$[1].keyWord", is("体育")))
-                .andExpect(jsonPath("$[1].user", isA(User.class)))
                 .andExpect(jsonPath("$[2].eventName", is("湖北复航国际客运航线")))
                 .andExpect(jsonPath("$[2].keyWord", is("社会时事")))
-                .andExpect(jsonPath("$[2].user", isA(User.class)))
                 .andExpect(status().isOk());
 
     }

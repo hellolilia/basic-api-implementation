@@ -1,10 +1,12 @@
 package com.thoughtworks.rslist.api;
 
+import domain.User;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import domain.RsEvent;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -16,9 +18,10 @@ public class RsController {
 
   private List<RsEvent> initRsEvent() {
     List<RsEvent> rsEventList = new ArrayList<>();
-    rsEventList.add(new RsEvent("鸡肉降价了", "经济"));
-    rsEventList.add(new RsEvent("中国女排八连胜", "体育"));
-    rsEventList.add(new RsEvent("湖北复航国际客运航线", "社会时事"));
+    User user = new User("wang", "female", 18, "c@thoughtworks.com", "12222222222");
+    rsEventList.add(new RsEvent("鸡肉降价了", "经济", user));
+    rsEventList.add(new RsEvent("中国女排八连胜", "体育", user));
+    rsEventList.add(new RsEvent("湖北复航国际客运航线", "社会时事", user));
     return rsEventList;
   }
 
@@ -36,7 +39,7 @@ public class RsController {
   }
 
   @PostMapping("/rs/event")
-  public void addRsEvent(@RequestBody RsEvent rsEvent){
+  public void addRsEvent(@RequestBody @Valid RsEvent rsEvent){
     rsList.add(rsEvent);
   }
 
@@ -47,15 +50,9 @@ public class RsController {
   }
 
   @PatchMapping("/rs/{index}")
-  public  void modifyOneRsEvent(@PathVariable int index, @RequestBody RsEvent modifyEvent){
-    if(modifyEvent.getEventName() != null && modifyEvent.getKeyWord() != null){
+  public  void modifyOneRsEvent(@PathVariable int index, @RequestBody @Valid RsEvent modifyEvent){
       rsList.get(index - 1).setKeyWord(modifyEvent.getKeyWord());
       rsList.get(index - 1).setEventName(modifyEvent.getEventName());
-    } else if(modifyEvent.getEventName() == null && modifyEvent.getKeyWord() != null){
-      rsList.get(index - 1).setKeyWord(modifyEvent.getKeyWord());
-    } else {
-      rsList.get(index - 1).setEventName(modifyEvent.getEventName());
-    }
   }
 
 }
