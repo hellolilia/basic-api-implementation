@@ -1,12 +1,20 @@
 package domain;
 
-public class RsEvent {
-    private String eventName;
-    private String keyWord;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
-    public RsEvent(String eventName, String keyWord) {
+public class RsEvent {
+    @NotNull
+    private String eventName;
+    @NotNull
+    private String keyWord;
+    @Valid
+    private User user;
+
+    public RsEvent(@NotNull String eventName, @NotNull String keyWord, @Valid User user) {
         this.eventName = eventName;
         this.keyWord = keyWord;
+        this.user = user;
     }
 
     public RsEvent() {
@@ -26,5 +34,13 @@ public class RsEvent {
 
     public void setKeyWord(String keyWord) {
         this.keyWord = keyWord;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 }
