@@ -11,6 +11,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.thoughtworks.rslist.api.UserController.userList;
+
+
 @RestController
 public class RsController {
 
@@ -40,7 +43,13 @@ public class RsController {
 
   @PostMapping("/rs/event")
   public void addRsEvent(@RequestBody @Valid RsEvent rsEvent){
-    rsList.add(rsEvent);
+    if (UserController.isUserExist(rsEvent.getUser())) {
+      rsList.add(rsEvent);
+    } else {
+      rsList.add(rsEvent);
+      userList.add(rsEvent.getUser());
+    }
+
   }
 
   @DeleteMapping("/rs/{index}")
