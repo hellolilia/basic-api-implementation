@@ -39,7 +39,6 @@ public class RsEvent {
         this.keyWord = keyWord;
     }
 
-    @JsonIgnore
     public User getUser() {
         return user;
     }
