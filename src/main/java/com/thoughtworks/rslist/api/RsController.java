@@ -51,7 +51,7 @@ public class RsController {
       rsList.add(rsEvent);
       userList.add(rsEvent.getUser());
     }
-    return ResponseEntity.created(null).build();
+    return ResponseEntity.created(null).header("index",String.valueOf(rsList.size()-1)).build();
   }
 
   @DeleteMapping("/rs/{index}")
