@@ -10,7 +10,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import domain.RsEvent;
@@ -27,8 +27,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import java.util.List;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -110,7 +109,8 @@ class RsControllerTest {
 
 
         mockMvc.perform(post("/rs/event").content(jsonString).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+                .andExpect(status().isCreated())
+                .andExpect(header().string("index","3"));
         mockMvc.perform((get("/rs/list")))
                 .andExpect(jsonPath("$", hasSize(4)))
                 .andExpect(jsonPath("$[0].eventName", is("鸡肉降价了")))
@@ -146,7 +146,7 @@ class RsControllerTest {
         String jsonString = "{\"eventName\":\"张纪中结婚\",\"keyWord\":\"娱乐\"}";
 
         mockMvc.perform(patch("/rs/1").content(jsonString).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+                .andExpect(status().isCreated());
 
         mockMvc.perform(get("/rs/list"))
                 .andExpect(jsonPath("$", hasSize(3)))
@@ -190,17 +190,26 @@ class RsControllerTest {
 
     @Test
     @Order(9)
-    public void should_throw_invalid_index_when_get_small_index() throws Exception {
+    public void should_throw_invalid_index_when_get_wrong_index() throws Exception {
         mockMvc.perform(get("/rs/0"))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error",is("invalid index")));
+                .andExpect(jsonPath("$.error", is("invalid index")));
+        mockMvc.perform(get("/rs/100"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error", is("invalid index")));
     }
 
     @Test
     @Order(10)
-    public void should_throw_invalid_index_when_get_big_index() throws Exception {
-        mockMvc.perform(get("/rs/100"))
+    public void should_throw_invalid_request_param_when_get_wrong_param() throws Exception {
+        mockMvc.perform(get("/rs/list?start=10&end=30"))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error",is("invalid index")));
+                .andExpect(jsonPath("$.error",is("invalid request param")));
+        mockMvc.perform(get("/rs/list?start=-1&end=2"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error",is("invalid request param")));
+        mockMvc.perform(get("/rs/list?start=1&end=6"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error",is("invalid request param")));
     }
 }
