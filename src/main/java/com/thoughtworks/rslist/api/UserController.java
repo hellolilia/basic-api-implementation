@@ -38,6 +38,10 @@ public class UserController {
     }
 
 
+    @GetMapping("/users")
+    public ResponseEntity getUsers(){
+        return ResponseEntity.ok(userList);
+    }
 
     public static boolean isUserExist(User user) {
         List<User> users = userList.stream().filter(user1 -> user1.getName().equals(user.getName())).collect(Collectors.toList());

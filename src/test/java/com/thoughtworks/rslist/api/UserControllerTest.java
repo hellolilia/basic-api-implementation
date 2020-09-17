@@ -42,11 +42,11 @@ class UserControllerTest {
 
         mockMvc.perform(get("/user"))
                 .andExpect(jsonPath("$",hasSize(4)))
-                .andExpect(jsonPath("$[3].name",is("xiaowang")))
-                .andExpect(jsonPath("$[3].gender",is("female")))
-                .andExpect(jsonPath("$[3].age",is(19)))
-                .andExpect(jsonPath("$[3].email",is("a@thoughtworks.com")))
-                .andExpect(jsonPath("$[3].phone",is("18888888888")))
+                .andExpect(jsonPath("$[3].user_name",is("xiaowang")))
+                .andExpect(jsonPath("$[3].user_gender",is("female")))
+                .andExpect(jsonPath("$[3].user_age",is(19)))
+                .andExpect(jsonPath("$[3].user_email",is("a@thoughtworks.com")))
+                .andExpect(jsonPath("$[3].user_phone",is("18888888888")))
                 .andExpect(status().isOk());
     }
 
@@ -142,16 +142,16 @@ class UserControllerTest {
 
         mockMvc.perform(get("/user"))
                 .andExpect(jsonPath("$", hasSize(5)))
-                .andExpect(jsonPath("$[0].name",is("wang")))
-                .andExpect(jsonPath("$[0].gender",is("female")))
-                .andExpect(jsonPath("$[1].age",is(18)))
-                .andExpect(jsonPath("$[1].email",is("y@thoughtworks.com")))
-                .andExpect(jsonPath("$[2].phone",is("16666666666")))
-                .andExpect(jsonPath("$[2].name",is("ming")))
-                .andExpect(jsonPath("$[3].gender",is("female")))
-                .andExpect(jsonPath("$[3].age",is(19)))
-                .andExpect(jsonPath("$[4].email",is("xy@thoughtworks.com")))
-                .andExpect(jsonPath("$[4].phone",is("16688888888")))
+                .andExpect(jsonPath("$[0].user_name",is("wang")))
+                .andExpect(jsonPath("$[0].user_gender",is("female")))
+                .andExpect(jsonPath("$[1].user_age",is(18)))
+                .andExpect(jsonPath("$[1].user_email",is("y@thoughtworks.com")))
+                .andExpect(jsonPath("$[2].user_phone",is("16666666666")))
+                .andExpect(jsonPath("$[2].user_name",is("ming")))
+                .andExpect(jsonPath("$[3].user_gender",is("female")))
+                .andExpect(jsonPath("$[3].user_age",is(19)))
+                .andExpect(jsonPath("$[4].user_email",is("xy@thoughtworks.com")))
+                .andExpect(jsonPath("$[4].user_phone",is("16688888888")))
                 .andExpect(status().isOk());
     }
 
@@ -183,17 +183,29 @@ class UserControllerTest {
 
         mockMvc.perform(get("/user"))
                 .andExpect(jsonPath("$", hasSize(5)))
-                .andExpect(jsonPath("$[0].name",is("wang")))
-                .andExpect(jsonPath("$[0].gender",is("female")))
-                .andExpect(jsonPath("$[1].age",is(18)))
-                .andExpect(jsonPath("$[1].email",is("y@thoughtworks.com")))
-                .andExpect(jsonPath("$[2].phone",is("16666666666")))
-                .andExpect(jsonPath("$[2].name",is("ming")))
-                .andExpect(jsonPath("$[3].gender",is("female")))
-                .andExpect(jsonPath("$[3].age",is(19)))
-                .andExpect(jsonPath("$[4].name",is("xiaoyang")))
-                .andExpect(jsonPath("$[4].phone",is("16688888888")))
+                .andExpect(jsonPath("$[0].user_name",is("wang")))
+                .andExpect(jsonPath("$[0].user_gender",is("female")))
+                .andExpect(jsonPath("$[1].user_age",is(18)))
+                .andExpect(jsonPath("$[1].user_email",is("y@thoughtworks.com")))
+                .andExpect(jsonPath("$[2].user_phone",is("16666666666")))
+                .andExpect(jsonPath("$[2].user_name",is("ming")))
+                .andExpect(jsonPath("$[3].user_gender",is("female")))
+                .andExpect(jsonPath("$[3].user_age",is(19)))
+                .andExpect(jsonPath("$[4].user_name",is("xiaoyang")))
+                .andExpect(jsonPath("$[4].user_phone",is("16688888888")))
                 .andExpect(status().isOk());
     }
 
+    @Test
+    @Order(10)
+    public void should_get_all_users() throws Exception {
+        mockMvc.perform(get("/users"))
+                .andExpect(jsonPath("$", hasSize(5)))
+                .andExpect(jsonPath("$[3].user_name",is("xiaowang")))
+                .andExpect(jsonPath("$[3].user_gender",is("female")))
+                .andExpect(jsonPath("$[3].user_age",is(19)))
+                .andExpect(jsonPath("$[3].user_email",is("a@thoughtworks.com")))
+                .andExpect(jsonPath("$[3].user_phone",is("18888888888")))
+                .andExpect(status().isOk());
+    }
 }
