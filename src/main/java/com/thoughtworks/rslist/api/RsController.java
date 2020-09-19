@@ -3,6 +3,8 @@ package com.thoughtworks.rslist.api;
 import com.thoughtworks.rslist.exception.Error;
 import com.thoughtworks.rslist.exception.RsEventNotValidException;
 import domain.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -23,6 +25,8 @@ import static com.thoughtworks.rslist.api.UserController.userList;
 public class RsController {
 
   private List<RsEvent> rsList = initRsEvent();
+
+  Logger logger = LoggerFactory.getLogger(RsController.class);
 
   private List<RsEvent> initRsEvent() {
     List<RsEvent> rsEventList = new ArrayList<>();
@@ -85,6 +89,7 @@ public class RsController {
     } else {
       errorMessage = e.getMessage();
     }
+    logger.error(errorMessage);
     Error error = new Error();
     error.setError(errorMessage);
     return ResponseEntity.badRequest().body(error);

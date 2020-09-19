@@ -2,6 +2,8 @@ package com.thoughtworks.rslist.api;
 
 import com.thoughtworks.rslist.exception.Error;
 import domain.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +16,8 @@ import java.util.stream.Collectors;
 @RestController
 public class UserController {
     public static List<User> userList = initUser();
+
+    Logger logger = LoggerFactory.getLogger(UserController.class);
 
     private static List<User> initUser() {
         List<User> userList = new ArrayList<>();
@@ -54,6 +58,7 @@ public class UserController {
     public ResponseEntity rsExceptionHandler(Exception e) {
         Error error = new Error();
         error.setError("invalid user");
+        logger.error("invalid user");
         return ResponseEntity.badRequest().body(error);
     }
 }
