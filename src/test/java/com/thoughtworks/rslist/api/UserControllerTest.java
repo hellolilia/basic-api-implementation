@@ -6,10 +6,7 @@ import com.thoughtworks.rslist.po.UserPO;
 import com.thoughtworks.rslist.repository.UserRepository;
 import domain.RsEvent;
 import domain.User;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -21,8 +18,7 @@ import java.util.List;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
@@ -118,7 +114,7 @@ class UserControllerTest {
     }
 
     @Test
-    @Order(12)
+    @Order(8)
     public void should_get_user_by_userid() throws Exception {
         mockMvc.perform(get("/user/1"))
                 .andExpect(jsonPath("$.username", is("xiaowang")))
@@ -126,4 +122,12 @@ class UserControllerTest {
                 .andExpect(status().isOk());
     }
 
+    @Test
+    @Order(9)
+    public void should_delete_user_by_userid() throws Exception {
+        mockMvc.perform(delete("/user/1"))
+                .andExpect(status().isOk());
+        List<UserPO> allUser = userRepository.findAll();
+        assertEquals(0, allUser.size());
+    }
 }

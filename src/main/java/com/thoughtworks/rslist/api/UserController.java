@@ -73,6 +73,12 @@ public class UserController {
         return ResponseEntity.ok(userPO);
     }
 
+    @DeleteMapping("/user/{userId}")
+    public ResponseEntity deleteUser(@PathVariable int userId){
+        userRepository.deleteById(userId);
+        return ResponseEntity.ok().build();
+    }
+
 
     @ExceptionHandler({MethodArgumentNotValidException.class})
     public ResponseEntity rsExceptionHandler(Exception e) {
