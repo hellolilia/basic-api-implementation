@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -65,6 +66,13 @@ public class UserController {
             return true;
         }
     }
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity getUser(@PathVariable int userId){
+        Optional<UserPO> userPO = userRepository.findById(userId);
+        return ResponseEntity.ok(userPO);
+    }
+
 
     @ExceptionHandler({MethodArgumentNotValidException.class})
     public ResponseEntity rsExceptionHandler(Exception e) {
