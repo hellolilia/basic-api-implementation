@@ -170,7 +170,8 @@ class RsControllerTest {
         String jsonString = objectMapper.writeValueAsString(rsEvent);
 
         mockMvc.perform(post("/rs/event").content(jsonString).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error", is("invalid param")));
 
     }
 
@@ -184,7 +185,8 @@ class RsControllerTest {
         String jsonString = objectMapper.writeValueAsString(rsEvent);
 
         mockMvc.perform(post("/rs/event").content(jsonString).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error", is("invalid param")));
 
     }
 
@@ -211,5 +213,18 @@ class RsControllerTest {
         mockMvc.perform(get("/rs/list?start=1&end=6"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error",is("invalid request param")));
+    }
+
+    @Test
+    @Order(11)
+    public void should_throw_invalid_param_when_get_wrong_rs_event() throws Exception {
+        User user = new User("wang", "female", 18, "cthoughtworkscom", "12222222222");
+
+        RsEvent rsEvent = new RsEvent("流星雨来了", "社会时事", user);
+        ObjectMapper objectMapper = new ObjectMapper();
+        String jsonString = objectMapper.writeValueAsString(rsEvent);
+        mockMvc.perform(post("/rs/event").content(jsonString).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error", is("invalid param")));
     }
 }

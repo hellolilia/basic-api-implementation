@@ -1,12 +1,13 @@
 package com.thoughtworks.rslist.api;
 
+import com.thoughtworks.rslist.exception.Error;
+import com.thoughtworks.rslist.exception.RsEventNotValidException;
+import com.thoughtworks.rslist.exception.UserNotValidException;
 import domain.RsEvent;
 import domain.User;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
@@ -50,5 +51,18 @@ public class UserController {
         } else {
             return true;
         }
+    }
+
+    @ExceptionHandler({UserNotValidException.class, MethodArgumentNotValidException.class})
+    public ResponseEntity rsExceptionHandler(Exception e) {
+        String errorMessage;
+        if(e instanceof MethodArgumentNotValidException) {
+            errorMessage = "invalid param";
+        } else {
+            errorMessage = e.getMessage();
+        }
+        Error error = new Error();
+        error.setError(errorMessage);
+        return ResponseEntity.badRequest().body(error);
     }
 }

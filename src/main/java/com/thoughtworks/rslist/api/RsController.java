@@ -5,6 +5,7 @@ import com.thoughtworks.rslist.exception.RsEventNotValidException;
 import domain.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import domain.RsEvent;
@@ -46,7 +47,7 @@ public class RsController {
   public ResponseEntity getRsEventBetween(@RequestParam(required = false) Integer start, @RequestParam(required = false) Integer end){
     if ( start == null || end == null){
       return ResponseEntity.ok(rsList);
-    } else if (start <0 || end > rsList.size()-1){
+    } else if (start <=0 || end > rsList.size()){
       throw new RsEventNotValidException("invalid request param");
     }
     return ResponseEntity.ok(rsList.subList(start - 1, end));
@@ -76,10 +77,16 @@ public class RsController {
     return ResponseEntity.created(null).build();
   }
 
-  @ExceptionHandler(RsEventNotValidException.class)
-  public ResponseEntity rsExceptionHandler(RsEventNotValidException e) {
+  @ExceptionHandler({RsEventNotValidException.class, MethodArgumentNotValidException.class})
+  public ResponseEntity rsExceptionHandler(Exception e) {
+    String errorMessage;
+    if(e instanceof MethodArgumentNotValidException) {
+      errorMessage = "invalid param";
+    } else {
+      errorMessage = e.getMessage();
+    }
     Error error = new Error();
-    error.setError(e.getMessage());
+    error.setError(errorMessage);
     return ResponseEntity.badRequest().body(error);
   }
 }
