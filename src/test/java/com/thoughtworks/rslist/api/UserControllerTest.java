@@ -209,5 +209,16 @@ class UserControllerTest {
                 .andExpect(status().isOk());
     }
 
+    @Test
+    @Order(11)
+    public void should_throw_invalid_user_when_get_wrong_user() throws Exception {
+        User user = new User("xiaowanggggg", "female", 19, "a@thoughtworks.com", "18888888888");
+        ObjectMapper objectMapper = new ObjectMapper();
+        String jsonString = objectMapper.writeValueAsString(user);
+
+        mockMvc.perform(post("/user").content(jsonString).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error",is("invalid user")));
+    }
 
 }
