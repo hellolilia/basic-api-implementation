@@ -1,12 +1,15 @@
 package com.thoughtworks.rslist.api;
 
-import domain.RsEvent;
+import com.thoughtworks.rslist.exception.Error;
+import com.thoughtworks.rslist.po.UserPO;
+import com.thoughtworks.rslist.repository.UserRepository;
 import domain.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
@@ -16,6 +19,10 @@ import java.util.stream.Collectors;
 @RestController
 public class UserController {
     public static List<User> userList = initUser();
+    @Autowired
+    UserRepository userRepository;
+
+    Logger logger = LoggerFactory.getLogger(UserController.class);
 
     private static List<User> initUser() {
         List<User> userList = new ArrayList<>();
@@ -28,8 +35,15 @@ public class UserController {
 
     @PostMapping("/user")
     public ResponseEntity addUser(@RequestBody @Valid User user){
-        userList.add(user);
-        return ResponseEntity.created(null).header("index",String.valueOf(userList.size()-1)).build();
+        UserPO userPO = new UserPO();
+        userPO.setUsername(user.getName());
+        userPO.setAge(user.getAge());
+        userPO.setGender(user.getGender());
+        userPO.setEmail(user.getEmail());
+        userPO.setPhone(user.getPhone());
+        userPO.setVoteNum(user.getVoteNum());
+        userRepository.save(userPO);
+        return ResponseEntity.created(null).build();
     }
 
     @GetMapping("/user")
@@ -50,5 +64,13 @@ public class UserController {
         } else {
             return true;
         }
+    }
+
+    @ExceptionHandler({MethodArgumentNotValidException.class})
+    public ResponseEntity rsExceptionHandler(Exception e) {
+        Error error = new Error();
+        error.setError("invalid user");
+        logger.error("invalid user");
+        return ResponseEntity.badRequest().body(error);
     }
 }

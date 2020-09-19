@@ -3,8 +3,11 @@ package com.thoughtworks.rslist.api;
 import com.thoughtworks.rslist.exception.Error;
 import com.thoughtworks.rslist.exception.RsEventNotValidException;
 import domain.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import domain.RsEvent;
@@ -24,29 +27,19 @@ public class RsController {
 
   private List<RsEvent> rsList = initRsEvent();
 
+  Logger logger = LoggerFactory.getLogger(RsController.class);
+
   public RsController() throws SQLException {
   }
 
   private List<RsEvent> initRsEvent() throws SQLException {
-    createTableByJdbc();
+
     List<RsEvent> rsEventList = new ArrayList<>();
     User user = new User("wang", "female", 18, "c@thoughtworks.com", "12222222222");
     rsEventList.add(new RsEvent("鸡肉降价了", "经济", user));
     rsEventList.add(new RsEvent("中国女排八连胜", "体育", user));
     rsEventList.add(new RsEvent("湖北复航国际客运航线", "社会时事", user));
     return rsEventList;
-  }
-
-  private static void createTableByJdbc() throws SQLException {
-    Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/rsSystem?user=root&password=&useUnicode=true&characterEncoding=utf8&useSSL=false");
-    DatabaseMetaData metaData = connection.getMetaData();
-    ResultSet resultSet = metaData.getTables(null,null,"rsEvent",null);
-    if (!resultSet.next()) {
-      String creatTableSql = "create table rsEvent(eventName varchar(200) not null, keyword varchar(100) not null)";
-      Statement statement = connection.createStatement();
-      statement.execute(creatTableSql);
-    }
-    connection.close();
   }
 
   @GetMapping("/rs/{index}")
@@ -57,13 +50,11 @@ public class RsController {
     return rsList.get(index - 1);
   }
 
-
-
   @GetMapping("/rs/list")
   public ResponseEntity getRsEventBetween(@RequestParam(required = false) Integer start, @RequestParam(required = false) Integer end){
     if ( start == null || end == null){
       return ResponseEntity.ok(rsList);
-    } else if (start <1 || end > rsList.size()){
+    } else if (start <=0 || end > rsList.size()){
       throw new RsEventNotValidException("invalid request param");
     }
     return ResponseEntity.ok(rsList.subList(start - 1, end));
@@ -93,10 +84,17 @@ public class RsController {
     return ResponseEntity.created(null).build();
   }
 
-  @ExceptionHandler(RsEventNotValidException.class)
-  public ResponseEntity rsExceptionHandler(RsEventNotValidException e) {
+  @ExceptionHandler({RsEventNotValidException.class, MethodArgumentNotValidException.class})
+  public ResponseEntity rsExceptionHandler(Exception e) {
+    String errorMessage;
+    if(e instanceof MethodArgumentNotValidException) {
+      errorMessage = "invalid param";
+    } else {
+      errorMessage = e.getMessage();
+    }
+    logger.error(errorMessage);
     Error error = new Error();
-    error.setError(e.getMessage());
+    error.setError(errorMessage);
     return ResponseEntity.badRequest().body(error);
   }
 }

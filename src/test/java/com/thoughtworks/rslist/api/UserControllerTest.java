@@ -2,6 +2,8 @@ package com.thoughtworks.rslist.api;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.thoughtworks.rslist.po.UserPO;
+import com.thoughtworks.rslist.repository.UserRepository;
 import domain.RsEvent;
 import domain.User;
 import org.junit.jupiter.api.MethodOrderer;
@@ -13,6 +15,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
@@ -28,6 +32,8 @@ class UserControllerTest {
 
     @Autowired
     MockMvc mockMvc;
+    @Autowired
+    UserRepository userRepository;
 
     @Test
     @Order(1)
@@ -37,17 +43,12 @@ class UserControllerTest {
         String jsonString = objectMapper.writeValueAsString(user);
 
         mockMvc.perform(post("/user").content(jsonString).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isCreated())
-                .andExpect(header().string("index","3"));
+                .andExpect(status().isCreated());
 
-        mockMvc.perform(get("/user"))
-                .andExpect(jsonPath("$",hasSize(4)))
-                .andExpect(jsonPath("$[3].user_name",is("xiaowang")))
-                .andExpect(jsonPath("$[3].user_gender",is("female")))
-                .andExpect(jsonPath("$[3].user_age",is(19)))
-                .andExpect(jsonPath("$[3].user_email",is("a@thoughtworks.com")))
-                .andExpect(jsonPath("$[3].user_phone",is("18888888888")))
-                .andExpect(status().isOk());
+        List<UserPO> allUser = userRepository.findAll();
+        assertEquals(1, allUser.size());
+        assertEquals("xiaowang", allUser.get(0).getUsername());
+        assertEquals("a@thoughtworks.com", allUser.get(0).getEmail());
     }
 
     @Test
@@ -208,4 +209,17 @@ class UserControllerTest {
                 .andExpect(jsonPath("$[3].user_phone",is("18888888888")))
                 .andExpect(status().isOk());
     }
+
+    @Test
+    @Order(11)
+    public void should_throw_invalid_user_when_get_wrong_user() throws Exception {
+        User user = new User("xiaowanggggg", "female", 19, "a@thoughtworks.com", "18888888888");
+        ObjectMapper objectMapper = new ObjectMapper();
+        String jsonString = objectMapper.writeValueAsString(user);
+
+        mockMvc.perform(post("/user").content(jsonString).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error",is("invalid user")));
+    }
+
 }
