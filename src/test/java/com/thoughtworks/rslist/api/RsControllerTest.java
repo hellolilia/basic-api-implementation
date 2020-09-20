@@ -277,10 +277,10 @@ class RsControllerTest {
 
     @Test
     @Order(11)
-    public void should_add_Vote_to_mysql() throws Exception {
+    public void should_add_vote_to_mysql() throws Exception {
         UserPO user = userRepository.findAll().get(0);
         RsEventPO rsEvent = rsEventRepository.findAll().get(0);
-        String jsonString =String.format("{\"userId\":%d,\"time\":\"%s\",\"voteNum\":5}",
+        String jsonString =String.format("{\"userId\":%d,\"voteTime\":\"%s\",\"voteNum\":5}",
                         user.getId(), LocalDateTime.now().toString());
         mockMvc.perform(post("/rs/vote/{rsEventId}", rsEvent.getId()).content(jsonString)
                 .contentType(MediaType.APPLICATION_JSON))
