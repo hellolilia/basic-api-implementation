@@ -1,6 +1,10 @@
 package com.thoughtworks.rslist.api;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.thoughtworks.rslist.po.RsEventPO;
+import com.thoughtworks.rslist.po.UserPO;
+import com.thoughtworks.rslist.repository.RsEventRepository;
+import com.thoughtworks.rslist.repository.UserRepository;
 import domain.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +13,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -36,6 +42,12 @@ class RsControllerTest {
 
     @Autowired
     MockMvc mockMvc;
+    ObjectMapper objectMapper;
+    @Autowired
+    UserRepository userRepository;
+    @Autowired
+    RsEventRepository rsEventRepository;
+
 
     @Test
     @Order(1)
@@ -100,30 +112,32 @@ class RsControllerTest {
 
     @Test
     @Order(4)
-    public void should_add_one_rs_event() throws Exception {
-        User user = new User("wang", "female", 18, "c@thoughtworks.com", "12222222222");
+    public void should_add_event_when_user_exist() throws Exception {
+        UserPO saveUser = userRepository.save(UserPO.builder().username("xiaohong").age(20).phone("16666666666")
+                .email("xh@b.com").gender("female").voteNum(10).build());
 
-        RsEvent rsEvent = new RsEvent("信条上映", "文化", user);
-        ObjectMapper objectMapper = new ObjectMapper();
-        String jsonString = objectMapper.writeValueAsString(rsEvent);
-
+        String jsonString = "{\"eventName\":\"信条上映\",\"keyWord\":\"文化\",\"userId\":" + saveUser.getId() + "}";
 
         mockMvc.perform(post("/rs/event").content(jsonString).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isCreated())
-                .andExpect(header().string("index","3"));
-        mockMvc.perform((get("/rs/list")))
-                .andExpect(jsonPath("$", hasSize(4)))
-                .andExpect(jsonPath("$[0].eventName", is("鸡肉降价了")))
-                .andExpect(jsonPath("$[0].keyWord", is("经济")))
-                .andExpect(jsonPath("$[1].eventName", is("中国女排八连胜")))
-                .andExpect(jsonPath("$[1].keyWord", is("体育")))
-                .andExpect(jsonPath("$[2].eventName", is("湖北复航国际客运航线")))
-                .andExpect(jsonPath("$[2].keyWord", is("社会时事")))
-                .andExpect(jsonPath("$[3].eventName", is("信条上映")))
-                .andExpect(jsonPath("$[3].keyWord", is("文化")))
-                .andExpect(status().isOk());
+                .andExpect(status().isCreated());
+        List<RsEventPO> all = rsEventRepository.findAll();
+        assertNotNull(all);
+        assertEquals(1,all.size());
+        assertEquals("信条上映",all.get(0).getEventName());
+        assertEquals("文化",all.get(0).getKeyWord());
+        assertEquals(saveUser.getId(),all.get(0).getUserId());
+
     }
 
+    @Test
+    @Order(5)
+    public void should_not_add_event_when_user_not_exist() throws Exception {
+
+        String jsonString = "{\"eventName\":\"信条上映\",\"keyWord\":\"文化\",\"userId\":100}";
+
+        mockMvc.perform(post("/rs/event").content(jsonString).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
     @Test
     @Order(5)
     public void should_delete_one_rs_event() throws Exception {
@@ -165,7 +179,7 @@ class RsControllerTest {
     public void eventName_should_not_be_null() throws Exception {
         User user = new User("wang", "female", 18, "c@thoughtworks.com", "12222222222");
 
-        RsEvent rsEvent = new RsEvent(null, "社会时事", user);
+        RsEvent rsEvent = new RsEvent(null, "社会时事", 1);
         ObjectMapper objectMapper = new ObjectMapper();
         String jsonString = objectMapper.writeValueAsString(rsEvent);
 
@@ -180,7 +194,7 @@ class RsControllerTest {
     public void keyWord_should_not_be_null() throws Exception {
         User user = new User("wang", "female", 18, "c@thoughtworks.com", "12222222222");
 
-        RsEvent rsEvent = new RsEvent("流星雨来了", null, user);
+        RsEvent rsEvent = new RsEvent("流星雨来了", null, 1);
         ObjectMapper objectMapper = new ObjectMapper();
         String jsonString = objectMapper.writeValueAsString(rsEvent);
 
@@ -220,7 +234,7 @@ class RsControllerTest {
     public void should_throw_invalid_param_when_get_wrong_rs_event() throws Exception {
         User user = new User("wang", "female", 18, "cthoughtworkscom", "12222222222");
 
-        RsEvent rsEvent = new RsEvent("流星雨来了", "社会时事", user);
+        RsEvent rsEvent = new RsEvent("流星雨来了", "社会时事", 1);
         ObjectMapper objectMapper = new ObjectMapper();
         String jsonString = objectMapper.writeValueAsString(rsEvent);
         mockMvc.perform(post("/rs/event").content(jsonString).contentType(MediaType.APPLICATION_JSON))

@@ -2,11 +2,16 @@ package com.thoughtworks.rslist.api;
 
 import com.thoughtworks.rslist.exception.Error;
 import com.thoughtworks.rslist.exception.RsEventNotValidException;
+import com.thoughtworks.rslist.po.RsEventPO;
+import com.thoughtworks.rslist.repository.RsEventRepository;
+import com.thoughtworks.rslist.repository.UserRepository;
 import domain.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,13 +24,17 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.thoughtworks.rslist.api.UserController.userList;
 
 
 @RestController
+@Validated
 public class RsController {
-
   private List<RsEvent> rsList = initRsEvent();
+
+  @Autowired
+  RsEventRepository rsEventRepository;
+  @Autowired
+  UserRepository userRepository;
 
   Logger logger = LoggerFactory.getLogger(RsController.class);
 
@@ -36,9 +45,9 @@ public class RsController {
 
     List<RsEvent> rsEventList = new ArrayList<>();
     User user = new User("wang", "female", 18, "c@thoughtworks.com", "12222222222");
-    rsEventList.add(new RsEvent("鸡肉降价了", "经济", user));
-    rsEventList.add(new RsEvent("中国女排八连胜", "体育", user));
-    rsEventList.add(new RsEvent("湖北复航国际客运航线", "社会时事", user));
+    rsEventList.add(new RsEvent("鸡肉降价了", "经济", 1));
+    rsEventList.add(new RsEvent("中国女排八连胜", "体育", 1));
+    rsEventList.add(new RsEvent("湖北复航国际客运航线", "社会时事", 1));
     return rsEventList;
   }
 
@@ -62,12 +71,12 @@ public class RsController {
 
   @PostMapping("/rs/event")
   public ResponseEntity addRsEvent(@RequestBody @Valid RsEvent rsEvent){
-    if (UserController.isUserExist(rsEvent.getUser())) {
-      rsList.add(rsEvent);
-    } else {
-      rsList.add(rsEvent);
-      userList.add(rsEvent.getUser());
+    if (!userRepository.findById(rsEvent.getUserId()).isPresent()) {
+      return ResponseEntity.badRequest().build();
     }
+    RsEventPO rsEventPO = RsEventPO.builder().keyWord(rsEvent.getKeyWord()).eventName(rsEvent.getEventName())
+            .userId(rsEvent.getUserId()).build();
+    rsEventRepository.save(rsEventPO);
     return ResponseEntity.created(null).header("index",String.valueOf(rsList.size()-1)).build();
   }
 

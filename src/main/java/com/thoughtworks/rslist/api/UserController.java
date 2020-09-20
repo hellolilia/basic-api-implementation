@@ -19,19 +19,9 @@ import java.util.stream.Collectors;
 
 @RestController
 public class UserController {
-    public static List<User> userList = initUser();
     @Autowired
     UserRepository userRepository;
-
     Logger logger = LoggerFactory.getLogger(UserController.class);
-
-    private static List<User> initUser() {
-        List<User> userList = new ArrayList<>();
-        userList.add(new User("wang", "female", 20, "w@thoughtworks.com", "12222222222"));
-        userList.add(new User("yang", "male", 18, "y@thoughtworks.com", "12333333333"));
-        userList.add(new User("ming", "female", 25, "m@thoughtworks.com", "16666666666"));
-        return userList;
-    }
 
 
     @PostMapping("/user")
@@ -45,26 +35,6 @@ public class UserController {
         userPO.setVoteNum(user.getVoteNum());
         userRepository.save(userPO);
         return ResponseEntity.created(null).build();
-    }
-
-    @GetMapping("/user")
-    public ResponseEntity getUserList(){
-        return ResponseEntity.ok(userList);
-    }
-
-
-    @GetMapping("/users")
-    public ResponseEntity getUsers(){
-        return ResponseEntity.ok(userList);
-    }
-
-    public static boolean isUserExist(User user) {
-        List<User> users = userList.stream().filter(user1 -> user1.getName().equals(user.getName())).collect(Collectors.toList());
-        if (users.size() == 0) {
-            return false;
-        } else {
-            return true;
-        }
     }
 
     @GetMapping("/user/{userId}")

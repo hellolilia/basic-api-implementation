@@ -11,16 +11,23 @@ public class RsEvent {
     private String eventName;
     @NotNull
     private String keyWord;
-    @Valid
-    private User user;
+    private int userId;
 
-    public RsEvent(@NotNull String eventName, @NotNull String keyWord, @Valid User user) {
-        this.eventName = eventName;
-        this.keyWord = keyWord;
-        this.user = user;
+    public int getUserId() {
+        return userId;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
     }
 
     public RsEvent() {
+    }
+
+    public RsEvent(@NotNull String eventName, @NotNull String keyWord, int userId) {
+        this.eventName = eventName;
+        this.keyWord = keyWord;
+        this.userId = userId;
     }
 
     public String getEventName() {
@@ -37,14 +44,5 @@ public class RsEvent {
 
     public void setKeyWord(String keyWord) {
         this.keyWord = keyWord;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    @JsonProperty
-    public void setUser(User user) {
-        this.user = user;
     }
 }
