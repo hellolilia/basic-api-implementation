@@ -3,6 +3,7 @@ package com.thoughtworks.rslist.api;
 import com.thoughtworks.rslist.exception.Error;
 import com.thoughtworks.rslist.exception.RsEventNotValidException;
 import com.thoughtworks.rslist.po.RsEventPO;
+import com.thoughtworks.rslist.po.UserPO;
 import com.thoughtworks.rslist.repository.RsEventRepository;
 import com.thoughtworks.rslist.repository.UserRepository;
 import domain.User;
@@ -23,7 +24,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
+import java.util.Optional;
 
 
 @RestController
@@ -71,11 +72,12 @@ public class RsController {
 
   @PostMapping("/rs/event")
   public ResponseEntity addRsEvent(@RequestBody @Valid RsEvent rsEvent){
-    if (!userRepository.findById(rsEvent.getUserId()).isPresent()) {
+    Optional<UserPO> userPO = userRepository.findById(rsEvent.getUserId());
+    if (!userPO.isPresent()) {
       return ResponseEntity.badRequest().build();
     }
     RsEventPO rsEventPO = RsEventPO.builder().keyWord(rsEvent.getKeyWord()).eventName(rsEvent.getEventName())
-            .userId(rsEvent.getUserId()).build();
+            .userPO(userPO.get()).build();
     rsEventRepository.save(rsEventPO);
     return ResponseEntity.created(null).header("index",String.valueOf(rsList.size()-1)).build();
   }

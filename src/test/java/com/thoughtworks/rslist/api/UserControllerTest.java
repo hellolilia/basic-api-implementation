@@ -38,6 +38,18 @@ class UserControllerTest {
     @Autowired
     RsEventRepository rsEventRepository;
 
+    @BeforeEach
+    void setUp(){
+        objectMapper = new ObjectMapper();
+        userRepository.deleteAll();
+        rsEventRepository.deleteAll();
+        UserPO userPO = UserPO.builder().age(25).email("ab@c.com").gender("male")
+                .phone("19999999999").username("xiaowang").build();
+        userRepository.save(userPO);
+        RsEventPO rsEventPO = RsEventPO.builder().keyWord("经济")
+                .eventName("鸡肉降价了").userPO(userPO).build();
+        rsEventRepository.save(rsEventPO);
+    }
     @Test
     @Order(1)
     public void should_register_user() throws Exception {
@@ -48,9 +60,9 @@ class UserControllerTest {
                 .andExpect(status().isCreated());
 
         List<UserPO> allUser = userRepository.findAll();
-        assertEquals(1, allUser.size());
-        assertEquals("xiaowang", allUser.get(0).getUsername());
-        assertEquals("a@thoughtworks.com", allUser.get(0).getEmail());
+        assertEquals(2, allUser.size());
+        assertEquals("xiaowang", allUser.get(1).getUsername());
+        assertEquals("a@thoughtworks.com", allUser.get(1).getEmail());
     }
 
     @Test
@@ -117,32 +129,24 @@ class UserControllerTest {
     @Order(8)
     public void should_get_user_by_userid() throws Exception {
         mockMvc.perform(get("/user/1"))
-                .andExpect(jsonPath("$.username", is("xiaowang")))
-                .andExpect(jsonPath("$.age", is(19)))
                 .andExpect(status().isOk());
     }
 
     @Test
     @Order(9)
-    public void should_delete_user_by_userid() throws Exception {
-        mockMvc.perform(delete("/user/1"))
-                .andExpect(status().isOk());
-        List<UserPO> allUser = userRepository.findAll();
-        assertEquals(0, allUser.size());
-    }
-
-    @Test
-    @Order(10)
     public void shoule_delete_user() throws Exception {
         UserPO userPO = UserPO.builder().age(25).email("ab@c.com").gender("male")
                 .phone("19999999999").username("dawang").build();
         userRepository.save(userPO);
-        RsEventPO rsEventPO = RsEventPO.builder().keyWord("经济")
-                .eventName("鸡肉降价了").userId(userPO.getId()).build();
+        RsEventPO rsEventPO = RsEventPO.builder().keyWord("体育")
+                .eventName("中国女排八连胜").userPO(userPO).build();
+        rsEventRepository.save(rsEventPO);
+        rsEventPO = RsEventPO.builder().keyWord("社会时事")
+                .eventName("湖北复航国际客运航线").userPO(userPO).build();
         rsEventRepository.save(rsEventPO);
         mockMvc.perform(delete("/user/{id}",userPO.getId()))
                 .andExpect(status().isOk());
-        assertEquals(0,userRepository.findAll().size());
-        assertEquals(0,rsEventRepository.findAll().size());
+        assertEquals(1,userRepository.findAll().size());
+        assertEquals(1,rsEventRepository.findAll().size());
     }
 }

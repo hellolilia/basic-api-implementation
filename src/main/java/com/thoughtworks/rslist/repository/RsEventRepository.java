@@ -10,7 +10,5 @@ import java.util.List;
 public interface RsEventRepository extends CrudRepository<RsEventPO, Integer> {
     @Override
     List<RsEventPO> findAll();
-    @Transactional
-    void deleteAllByUserId(int userId);
 }
 
