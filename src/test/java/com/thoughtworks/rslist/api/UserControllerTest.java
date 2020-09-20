@@ -2,7 +2,9 @@ package com.thoughtworks.rslist.api;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.thoughtworks.rslist.po.RsEventPO;
 import com.thoughtworks.rslist.po.UserPO;
+import com.thoughtworks.rslist.repository.RsEventRepository;
 import com.thoughtworks.rslist.repository.UserRepository;
 import domain.RsEvent;
 import domain.User;
@@ -33,6 +35,8 @@ class UserControllerTest {
     ObjectMapper objectMapper;
     @Autowired
     UserRepository userRepository;
+    @Autowired
+    RsEventRepository rsEventRepository;
 
     @Test
     @Order(1)
@@ -125,5 +129,20 @@ class UserControllerTest {
                 .andExpect(status().isOk());
         List<UserPO> allUser = userRepository.findAll();
         assertEquals(0, allUser.size());
+    }
+
+    @Test
+    @Order(10)
+    public void shoule_delete_user() throws Exception {
+        UserPO userPO = UserPO.builder().age(25).email("ab@c.com").gender("male")
+                .phone("19999999999").username("dawang").build();
+        userRepository.save(userPO);
+        RsEventPO rsEventPO = RsEventPO.builder().keyWord("经济")
+                .eventName("鸡肉降价了").userId(userPO.getId()).build();
+        rsEventRepository.save(rsEventPO);
+        mockMvc.perform(delete("/user/{id}",userPO.getId()))
+                .andExpect(status().isOk());
+        assertEquals(0,userRepository.findAll().size());
+        assertEquals(0,rsEventRepository.findAll().size());
     }
 }

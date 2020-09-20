@@ -2,12 +2,14 @@ package com.thoughtworks.rslist.api;
 
 import com.thoughtworks.rslist.exception.Error;
 import com.thoughtworks.rslist.po.UserPO;
+import com.thoughtworks.rslist.repository.RsEventRepository;
 import com.thoughtworks.rslist.repository.UserRepository;
 import domain.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,6 +23,9 @@ import java.util.stream.Collectors;
 public class UserController {
     @Autowired
     UserRepository userRepository;
+    @Autowired
+    RsEventRepository rsEventRepository;
+
     Logger logger = LoggerFactory.getLogger(UserController.class);
 
 
@@ -44,8 +49,10 @@ public class UserController {
     }
 
     @DeleteMapping("/user/{userId}")
+    @Transactional
     public ResponseEntity deleteUser(@PathVariable int userId){
         userRepository.deleteById(userId);
+        rsEventRepository.deleteAllByUserId(userId);
         return ResponseEntity.ok().build();
     }
 
