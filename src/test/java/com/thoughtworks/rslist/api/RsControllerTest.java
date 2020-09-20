@@ -5,6 +5,7 @@ import com.thoughtworks.rslist.po.RsEventPO;
 import com.thoughtworks.rslist.po.UserPO;
 import com.thoughtworks.rslist.repository.RsEventRepository;
 import com.thoughtworks.rslist.repository.UserRepository;
+import com.thoughtworks.rslist.repository.VoteRepository;
 import domain.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MockMvcBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -47,12 +49,29 @@ class RsControllerTest {
     UserRepository userRepository;
     @Autowired
     RsEventRepository rsEventRepository;
+    @Autowired
+    VoteRepository voteRepository;
 
+    @BeforeEach
+    void setUp(){
+        objectMapper = new ObjectMapper();
+        userRepository.deleteAll();
+        rsEventRepository.deleteAll();
+        voteRepository.deleteAll();
+        UserPO userPO = UserPO.builder().age(25).email("ab@c.com").gender("male")
+                .phone("19999999999").username("xiaowang").voteNum(10).build();
+        userRepository.save(userPO);
+        rsEventRepository.save(RsEventPO.builder().keyWord("经济")
+                .eventName("鸡肉降价了").userPO(userPO).voteNum(0).build());
+        rsEventRepository.save(RsEventPO.builder().keyWord("体育")
+                .eventName("中国女排八连胜").userPO(userPO).voteNum(0).build());
+        rsEventRepository.save(RsEventPO.builder().keyWord("社会时事")
+                .eventName("湖北复航国际客运航线").userPO(userPO).voteNum(0).build());
+    }
 
     @Test
     @Order(1)
     public void should_get_event_list() throws Exception {
-
         mockMvc.perform(get("/rs/list"))
                 .andExpect(jsonPath("$", hasSize(3)))
                 .andExpect(jsonPath("$[0].eventName", is("鸡肉降价了")))
@@ -62,7 +81,6 @@ class RsControllerTest {
                 .andExpect(jsonPath("$[2].eventName", is("湖北复航国际客运航线")))
                 .andExpect(jsonPath("$[2].keyWord", is("社会时事")))
                 .andExpect(status().isOk());
-
     }
 
     @Test
@@ -122,10 +140,10 @@ class RsControllerTest {
                 .andExpect(status().isCreated());
         List<RsEventPO> all = rsEventRepository.findAll();
         assertNotNull(all);
-        assertEquals(1,all.size());
-        assertEquals("信条上映",all.get(0).getEventName());
-        assertEquals("文化",all.get(0).getKeyWord());
-        assertEquals(saveUser.getId(),all.get(0).getUserPO().getId());
+        assertEquals(4,all.size());
+        assertEquals("信条上映",all.get(3).getEventName());
+        assertEquals("文化",all.get(3).getKeyWord());
+        assertEquals(saveUser.getId(),all.get(3).getUserPO().getId());
 
     }
 
@@ -138,6 +156,7 @@ class RsControllerTest {
         mockMvc.perform(post("/rs/event").content(jsonString).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
     }
+
     @Test
     @Order(5)
     public void should_delete_one_rs_event() throws Exception {
@@ -151,53 +170,8 @@ class RsControllerTest {
                 .andExpect(status().isOk());
     }
 
-
     @Test
     @Order(6)
-    public void should_modify_one_rs_event() throws Exception {
-        String jsonString = "{\"eventName\":\"张纪中结婚\",\"keyWord\":\"娱乐\"}";
-
-        mockMvc.perform(patch("/rs/1").content(jsonString).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isCreated());
-
-        mockMvc.perform(get("/rs/list"))
-                .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[0].eventName", is("张纪中结婚")))
-                .andExpect(jsonPath("$[0].keyWord", is("娱乐")))
-                .andExpect(jsonPath("$[1].eventName", is("湖北复航国际客运航线")))
-                .andExpect(jsonPath("$[1].keyWord", is("社会时事")))
-                .andExpect(status().isOk());
-    }
-
-
-    @Test
-    @Order(7)
-    public void eventName_should_not_be_null() throws Exception {
-        RsEvent rsEvent = new RsEvent(null, "社会时事", 1);
-        ObjectMapper objectMapper = new ObjectMapper();
-        String jsonString = objectMapper.writeValueAsString(rsEvent);
-
-        mockMvc.perform(post("/rs/event").content(jsonString).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error", is("invalid param")));
-
-    }
-
-    @Test
-    @Order(8)
-    public void keyWord_should_not_be_null() throws Exception {
-        RsEvent rsEvent = new RsEvent("流星雨来了", null, 1);
-        ObjectMapper objectMapper = new ObjectMapper();
-        String jsonString = objectMapper.writeValueAsString(rsEvent);
-
-        mockMvc.perform(post("/rs/event").content(jsonString).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error", is("invalid param")));
-
-    }
-
-    @Test
-    @Order(9)
     public void should_throw_invalid_index_when_get_wrong_index() throws Exception {
         mockMvc.perform(get("/rs/0"))
                 .andExpect(status().isBadRequest())
@@ -208,7 +182,7 @@ class RsControllerTest {
     }
 
     @Test
-    @Order(10)
+    @Order(7)
     public void should_throw_invalid_request_param_when_get_wrong_param() throws Exception {
         mockMvc.perform(get("/rs/list?start=10&end=30"))
                 .andExpect(status().isBadRequest())
@@ -222,13 +196,61 @@ class RsControllerTest {
     }
 
     @Test
-    @Order(11)
-    public void should_throw_invalid_param_when_get_wrong_rs_event() throws Exception {
-        RsEvent rsEvent = new RsEvent(null, "社会时事", 1);
-        ObjectMapper objectMapper = new ObjectMapper();
-        String jsonString = objectMapper.writeValueAsString(rsEvent);
-        mockMvc.perform(post("/rs/event").content(jsonString).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error", is("invalid param")));
+    @Order(8)
+    public void should_modify_one_rs_event() throws Exception {
+        List<UserPO> allUser = userRepository.findAll();
+        List<RsEventPO> allRsEvent = rsEventRepository.findAll();
+        String jsonString = "{\"eventName\":\"张纪中结婚\",\"keyWord\":\"娱乐\",\"userId\": " + allUser.get(0).getId() + "}";
+
+        mockMvc.perform(patch("/rs/{rsEventId}",String.valueOf(allRsEvent.get(0).getId())).content(jsonString).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/rs/list"))
+                .andExpect(jsonPath("$", hasSize(3)))
+                .andExpect(jsonPath("$[0].eventName", is("张纪中结婚")))
+                .andExpect(jsonPath("$[0].keyWord", is("娱乐")))
+                .andExpect(jsonPath("$[1].eventName", is("中国女排八连胜")))
+                .andExpect(jsonPath("$[2].keyWord", is("社会时事")))
+                .andExpect(status().isOk());
     }
+
+    @Test
+    @Order(9)
+    public void should_modify_eventName_when_no_keyword() throws Exception {
+        List<UserPO> allUser = userRepository.findAll();
+        List<RsEventPO> allRsEvent = rsEventRepository.findAll();
+        String jsonString = "{\"eventName\":\"张纪中结婚\",\"userId\": " + allUser.get(0).getId() + "}";
+
+        mockMvc.perform(patch("/rs/{rsEventId}",String.valueOf(allRsEvent.get(0).getId())).content(jsonString).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/rs/list"))
+                .andExpect(jsonPath("$", hasSize(3)))
+                .andExpect(jsonPath("$[0].eventName", is("张纪中结婚")))
+                .andExpect(jsonPath("$[0].keyWord", is("经济")))
+                .andExpect(jsonPath("$[1].eventName", is("中国女排八连胜")))
+                .andExpect(jsonPath("$[2].keyWord", is("社会时事")))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @Order(10)
+    public void should_modify_keyword_when_no_eventName() throws Exception {
+        List<UserPO> allUser = userRepository.findAll();
+        List<RsEventPO> allRsEvent = rsEventRepository.findAll();
+        String jsonString = "{\"keyWord\":\"娱乐\",\"userId\": " + allUser.get(0).getId() + "}";
+
+        mockMvc.perform(patch("/rs/{rsEventId}",String.valueOf(allRsEvent.get(0).getId())).content(jsonString).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/rs/list"))
+                .andExpect(jsonPath("$", hasSize(3)))
+                .andExpect(jsonPath("$[0].eventName", is("鸡肉降价了")))
+                .andExpect(jsonPath("$[0].keyWord", is("娱乐")))
+                .andExpect(jsonPath("$[1].eventName", is("中国女排八连胜")))
+                .andExpect(jsonPath("$[2].keyWord", is("社会时事")))
+                .andExpect(status().isOk());
+    }
+
+
 }
