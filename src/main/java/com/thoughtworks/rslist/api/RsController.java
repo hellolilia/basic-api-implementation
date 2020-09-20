@@ -4,6 +4,7 @@ import com.thoughtworks.rslist.exception.Error;
 import com.thoughtworks.rslist.exception.RsEventNotValidException;
 import com.thoughtworks.rslist.po.RsEventPO;
 import com.thoughtworks.rslist.po.UserPO;
+import com.thoughtworks.rslist.po.VotePO;
 import com.thoughtworks.rslist.repository.RsEventRepository;
 import com.thoughtworks.rslist.repository.UserRepository;
 import com.thoughtworks.rslist.repository.VoteRepository;
@@ -132,9 +133,7 @@ public class RsController {
 
   @PostMapping("/rs/vote/{rsEventId}")
   public ResponseEntity vote(@PathVariable int rsEventId, @RequestBody Vote vote) {
-    vote.setRsEventId(rsEventId);
-    rsService.vote(vote);
-    return ResponseEntity.ok().build();
+    return rsService.vote(vote, rsEventId);
   }
 }
 

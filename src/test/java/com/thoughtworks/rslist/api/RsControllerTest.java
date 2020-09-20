@@ -72,6 +72,7 @@ class RsControllerTest {
     @Test
     @Order(1)
     public void should_get_event_list() throws Exception {
+        List<UserPO> allUser = userRepository.findAll();
         mockMvc.perform(get("/rs/list"))
                 .andExpect(jsonPath("$", hasSize(3)))
                 .andExpect(jsonPath("$[0].eventName", is("鸡肉降价了")))
@@ -202,7 +203,7 @@ class RsControllerTest {
         List<RsEventPO> allRsEvent = rsEventRepository.findAll();
         String jsonString = "{\"eventName\":\"张纪中结婚\",\"keyWord\":\"娱乐\",\"userId\": " + allUser.get(0).getId() + "}";
 
-        mockMvc.perform(patch("/rs/{rsEventId}",String.valueOf(allRsEvent.get(0).getId())).content(jsonString).contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(patch("/rs/{rsEventId}",allRsEvent.get(0).getId()).content(jsonString).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
 
         mockMvc.perform(get("/rs/list"))
@@ -221,7 +222,7 @@ class RsControllerTest {
         List<RsEventPO> allRsEvent = rsEventRepository.findAll();
         String jsonString = "{\"eventName\":\"张纪中结婚\",\"userId\": " + allUser.get(0).getId() + "}";
 
-        mockMvc.perform(patch("/rs/{rsEventId}",String.valueOf(allRsEvent.get(0).getId())).content(jsonString).contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(patch("/rs/{rsEventId}",allRsEvent.get(0).getId()).content(jsonString).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
 
         mockMvc.perform(get("/rs/list"))
@@ -240,7 +241,7 @@ class RsControllerTest {
         List<RsEventPO> allRsEvent = rsEventRepository.findAll();
         String jsonString = "{\"keyWord\":\"娱乐\",\"userId\": " + allUser.get(0).getId() + "}";
 
-        mockMvc.perform(patch("/rs/{rsEventId}",String.valueOf(allRsEvent.get(0).getId())).content(jsonString).contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(patch("/rs/{rsEventId}",allRsEvent.get(0).getId()).content(jsonString).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
 
         mockMvc.perform(get("/rs/list"))
@@ -249,6 +250,18 @@ class RsControllerTest {
                 .andExpect(jsonPath("$[0].keyWord", is("娱乐")))
                 .andExpect(jsonPath("$[1].eventName", is("中国女排八连胜")))
                 .andExpect(jsonPath("$[2].keyWord", is("社会时事")))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @Order(11)
+    public void should_add_Vote_to_mysql() throws Exception {
+        UserPO user = userRepository.findAll().get(0);
+        RsEventPO rsEvent = rsEventRepository.findAll().get(0);
+        String jsonString =String.format("{\"userId\":%d,\"time\":\"%s\",\"voteNum\":5}",
+                        user.getId(), LocalDateTime.now().toString());
+        mockMvc.perform(post("/rs/vote/{rsEventId}", rsEvent.getId()).content(jsonString)
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
 

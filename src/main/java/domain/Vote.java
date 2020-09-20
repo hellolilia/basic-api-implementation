@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @Builder
 public class Vote {
     private int voteNum;
-    private LocalDateTime time;
+    private LocalDateTime voteTime;
     private int rsEventId;
     private int userId;
 
