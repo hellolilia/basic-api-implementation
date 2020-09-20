@@ -77,37 +77,53 @@ class RsControllerTest {
                 .andExpect(jsonPath("$", hasSize(3)))
                 .andExpect(jsonPath("$[0].eventName", is("鸡肉降价了")))
                 .andExpect(jsonPath("$[0].keyWord", is("经济")))
+                .andExpect(jsonPath("$[0].userId", is(allUser.get(0).getId())))
+                .andExpect(jsonPath("$[0].voteNum", is(0)))
                 .andExpect(jsonPath("$[1].eventName", is("中国女排八连胜")))
                 .andExpect(jsonPath("$[1].keyWord", is("体育")))
+                .andExpect(jsonPath("$[1].userId", is(allUser.get(0).getId())))
+                .andExpect(jsonPath("$[1].voteNum", is(0)))
                 .andExpect(jsonPath("$[2].eventName", is("湖北复航国际客运航线")))
                 .andExpect(jsonPath("$[2].keyWord", is("社会时事")))
+                .andExpect(jsonPath("$[2].userId", is(allUser.get(0).getId())))
+                .andExpect(jsonPath("$[2].voteNum", is(0)))
                 .andExpect(status().isOk());
     }
 
     @Test
     @Order(2)
     public void should_get_one_rs_event() throws Exception {
+        List<UserPO> allUser = userRepository.findAll();
         mockMvc.perform(get("/rs/1"))
                 .andExpect(jsonPath("$.eventName", is("鸡肉降价了")))
                 .andExpect(jsonPath("$.keyWord", is("经济")))
+                .andExpect(jsonPath("$.userId", is(allUser.get(0).getId())))
+                .andExpect(jsonPath("$.voteNum", is(0)))
                 .andExpect(status().isOk());
         mockMvc.perform(get("/rs/2"))
                 .andExpect(jsonPath("$.eventName", is("中国女排八连胜")))
                 .andExpect(jsonPath("$.keyWord", is("体育")))
+                .andExpect(jsonPath("$.userId", is(allUser.get(0).getId())))
+                .andExpect(jsonPath("$.voteNum", is(0)))
                 .andExpect(status().isOk());
         mockMvc.perform(get("/rs/3"))
                 .andExpect(jsonPath("$.eventName", is("湖北复航国际客运航线")))
                 .andExpect(jsonPath("$.keyWord", is("社会时事")))
+                .andExpect(jsonPath("$.userId", is(allUser.get(0).getId())))
+                .andExpect(jsonPath("$.voteNum", is(0)))
                 .andExpect(status().isOk());
     }
 
     @Test
     @Order(3)
     public void should_get_rs_event_between() throws Exception {
+        List<UserPO> allUser = userRepository.findAll();
         mockMvc.perform(get("/rs/list?start=1&end=2"))
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].eventName", is("鸡肉降价了")))
                 .andExpect(jsonPath("$[0].keyWord", is("经济")))
+                .andExpect(jsonPath("$[0].userId", is(allUser.get(0).getId())))
+                .andExpect(jsonPath("$[1].voteNum", is(0)))
                 .andExpect(jsonPath("$[1].eventName", is("中国女排八连胜")))
                 .andExpect(jsonPath("$[1].keyWord", is("体育")))
                 .andExpect(status().isOk());
@@ -115,6 +131,8 @@ class RsControllerTest {
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].eventName", is("中国女排八连胜")))
                 .andExpect(jsonPath("$[0].keyWord", is("体育")))
+                .andExpect(jsonPath("$[0].userId", is(allUser.get(0).getId())))
+                .andExpect(jsonPath("$[1].voteNum", is(0)))
                 .andExpect(jsonPath("$[1].eventName", is("湖北复航国际客运航线")))
                 .andExpect(jsonPath("$[1].keyWord", is("社会时事")))
                 .andExpect(status().isOk());
@@ -122,8 +140,12 @@ class RsControllerTest {
                 .andExpect(jsonPath("$", hasSize(3)))
                 .andExpect(jsonPath("$[0].eventName", is("鸡肉降价了")))
                 .andExpect(jsonPath("$[0].keyWord", is("经济")))
+                .andExpect(jsonPath("$[0].userId", is(allUser.get(0).getId())))
+                .andExpect(jsonPath("$[1].voteNum", is(0)))
                 .andExpect(jsonPath("$[1].eventName", is("中国女排八连胜")))
                 .andExpect(jsonPath("$[1].keyWord", is("体育")))
+                .andExpect(jsonPath("$[1].userId", is(allUser.get(0).getId())))
+                .andExpect(jsonPath("$[2].voteNum", is(0)))
                 .andExpect(jsonPath("$[2].eventName", is("湖北复航国际客运航线")))
                 .andExpect(jsonPath("$[2].keyWord", is("社会时事")))
                 .andExpect(status().isOk());
